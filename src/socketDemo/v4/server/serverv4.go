@@ -25,34 +25,35 @@ var (
 )
 
 func main() {
-	addr, _ := net.ResolveTCPAddr("tcp4", "localhost:9000")
-	listener, _ := net.ListenTCP("tcp4", addr)
-	for {
-		accept, _ := listener.Accept()
-		go func() {
-			b := make([]byte, 1024)
-			read, _ := accept.Read(b)
-			array := strings.Split(string(b[:read]), "-")
-			if user == nil {
-				user = new(User)
-			}
-			user.Username = array[0]
-			user.OtherUsername = array[1]
-			user.Msg = array[2]
-			user.ServerMsg = array[3]
+	addr, _ := net.ResolveTCPAddr("tcp4", ":9999")
+	lis, _ := net.ListenTCP("tcp4", addr)
 
-			if v, ok := userMap[user.OtherUsername]; ok && v != nil {
-				s := fmt.Sprintf("%s-%s-%s-%s", user.Username, user.OtherUsername, user.Msg, user.ServerMsg)
-				n, err := v.Write([]byte(user.Msg))
-				if n <= 0 || err != nil {
-					delete(userMap, user.OtherUsername)
-					accept.Close()
-					v.Close()
-					return
+	for {
+		conn, _ := lis.Accept()
+		go func() {
+			for {
+				b := make([]byte, 512)
+				//读取数据
+				count, _ := conn.Read(b)
+
+				arrStr := strings.Split(string(b[:count]), "-")
+				user.Username = arrStr[0]
+				user.OtherUsername = arrStr[1]
+				user.Msg = arrStr[2]
+				user.ServerMsg = arrStr[3]
+				userMap[user.Username] = conn
+				if v, ok := userMap[user.OtherUsername]; ok && v != nil {
+					user.ServerMsg = ""
+					n, e := v.Write([]byte(fmt.Sprintf("%s-%s-%s-%s", user.Username, user.OtherUsername, user.Msg, user.ServerMsg)))
+					if n == 0 || e != nil {
+						conn.Close()
+						delete(userMap, user.OtherUsername)
+						break
+					}
+				} else {
+					user.ServerMsg = "对方不在线"
+					n, e := conn.Write([]byte(fmt.Sprintf("%s-%s-%s-%s", user.Username, user.OtherUsername, user.Msg, user.ServerMsg)))
 				}
-			} else {
-				user.ServerMsg = "对方不在线"
-				accept.Write()
 			}
 		}()
 	}
