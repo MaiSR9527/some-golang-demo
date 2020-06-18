@@ -9,15 +9,22 @@ import (
 /**
  *
  *@author MaiShuRen
- *@date 2020/6/17 10:28
+ *@date 2020/6/18 10:03
  *@version v1.0
  */
+type User struct {
+	Name string
+	Age  string
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("view/index.html")
 	if err != nil {
 		fmt.Fprintln(w, err.Error())
 	}
-	err = t.Execute(w, nil)
+	m := make(map[string]interface{})
+	m["user"] = User{"msr", "22"}
+	err = t.Execute(w, m)
 	if err != nil {
 		fmt.Fprintln(w, err.Error())
 	}
