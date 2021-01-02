@@ -18,13 +18,13 @@ type HandlerTwo struct {
 type HandlerThree struct {
 }
 
-func (m *HandlerOne) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m *HandlerOne) ServeHTTP(w http_server.ResponseWriter, r *http_server.Request) {
 	w.Write([]byte("HandlerOne"))
 }
-func (m *HandlerTwo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m *HandlerTwo) ServeHTTP(w http_server.ResponseWriter, r *http_server.Request) {
 	w.Write([]byte("HandlerTwo"))
 }
-func (m *HandlerThree) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (m *HandlerThree) ServeHTTP(w http_server.ResponseWriter, r *http_server.Request) {
 	w.Write([]byte("HandlerThree"))
 }
 
@@ -33,10 +33,10 @@ func main() {
 	h1 := HandlerOne{}
 	h2 := HandlerTwo{}
 	h3 := HandlerThree{}
-	server := http.Server{Addr: "localhost:8080"}
-	http.Handle("/one", &h1)
-	http.Handle("/two", &h2)
-	http.Handle("/three", &h3)
+	server := http_server.Server{Addr: "localhost:8080"}
+	http_server.Handle("/one", &h1)
+	http_server.Handle("/two", &h2)
+	http_server.Handle("/three", &h3)
 	server.ListenAndServe()
 
 }*/
